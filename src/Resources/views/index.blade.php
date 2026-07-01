@@ -266,9 +266,11 @@
                         <div class="stage">
                             <div class="frame-wrap" :class="viewport">
                                 {{-- srcdoc renders the pristine captured email; using a src URL would let
-                                     the host app's global HTML middleware (e.g. injected widgets) leak in. --}}
-                                <iframe srcdoc="{{ $selected->html ?: $selected->text ?: '(no content)' }}"
-                                        sandbox="allow-same-origin"></iframe>
+                                     the host app's global HTML middleware (e.g. injected widgets) leak in.
+                                     <base target="_blank"> makes every link in the email open in a new tab
+                                     instead of navigating inside the preview; the sandbox allows that popup. --}}
+                                <iframe srcdoc="{{ '<base target=_blank>' . ($selected->html ?: e($selected->text) ?: '(no content)') }}"
+                                        sandbox="allow-same-origin allow-popups allow-popups-to-escape-sandbox"></iframe>
                             </div>
                         </div>
                     </div>
