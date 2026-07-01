@@ -12,18 +12,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        # One job per PHP version. Composer picks the newest Laravel + Testbench
+        # that fits each PHP, so this naturally covers Laravel 10 (on 8.1) through
+        # Laravel 13 (on 8.3/8.4) using patched releases only.
         php: ['8.1', '8.2', '8.3', '8.4']
-        laravel: [10, 11, 12, 13]
-        exclude:
-          # Laravel 11+ requires PHP 8.2+
-          - php: '8.1'
-            laravel: 11
-          - php: '8.1'
-            laravel: 12
-          - php: '8.1'
-            laravel: 13
 
-    name: PHP ${{ matrix.php }} · Laravel ${{ matrix.laravel }}
+    name: PHP ${{ matrix.php }}
 
     steps:
       - name: Checkout
@@ -38,8 +32,11 @@ jobs:
 
       - name: Install dependencies
         run: |
-          composer require "laravel/framework:^${{ matrix.laravel }}.0" --no-interaction --no-update
-          composer update --prefer-dist --no-interaction --no-progress
+          # Laravel 10 is EOL and every release carries a security advisory, which
+          # Composer 2.10 blocks by default. We still support and test on it, so
+          # opt out of the block for the test run.
+          composer config policy.advisories.block false
+          composer update --prefer-dist --prefer-stable --no-interaction --no-progress
 
       - name: Run tests
         run: vendor/bin/phpunit
