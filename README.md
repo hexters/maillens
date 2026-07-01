@@ -4,12 +4,12 @@
 
 <h1 align="center">MailLens</h1>
 
-<p align="center">
-  <a href="https://packagist.org/packages/hexters/maillens"><img src="https://poser.pugx.org/hexters/maillens/v/stable" alt="Latest Stable Version"></a>
-  <a href="https://packagist.org/packages/hexters/maillens"><img src="https://poser.pugx.org/hexters/maillens/downloads" alt="Total Downloads"></a>
-  <a href="https://github.com/hexters/maillens/actions/workflows/tests.yml"><img src="https://github.com/hexters/maillens/actions/workflows/tests.yml/badge.svg" alt="Tests"></a>
-  <a href="https://packagist.org/packages/hexters/maillens"><img src="https://poser.pugx.org/hexters/maillens/license" alt="License"></a>
-</p>
+
+[![Latest Stable Version](https://poser.pugx.org/hexters/maillens/v/stable)](https://packagist.org/packages/hexters/maillens)
+[![Total Downloads](https://poser.pugx.org/hexters/maillens/downloads)](https://packagist.org/packages/hexters/maillens)
+[![Tests](https://github.com/hexters/maillens/actions/workflows/tests.yml/badge.svg)](https://github.com/hexters/maillens/actions/workflows/tests.yml)
+[![License](https://poser.pugx.org/hexters/maillens/license)](https://packagist.org/packages/hexters/maillens)
+
 
 MailLens catches the email your app sends while you are developing, so you can
 read it in the browser instead of wiring up a real inbox. Set one env variable
