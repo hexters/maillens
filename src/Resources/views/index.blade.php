@@ -101,6 +101,35 @@
         .empty .big { font-size: 15px; color: var(--text); margin-bottom: 6px; }
         .empty code { background: var(--panel); border: 1px solid var(--border); border-radius: 5px; padding: 2px 6px; }
         form.inline { display: inline; }
+
+        /* One pane at a time on phones: the list, or the open message. */
+        .mobile-back { display: none; }
+        @media (max-width: 820px) {
+            main { grid-template-columns: 1fr; }
+            main[data-view="message"] .list { display: none; }
+            main[data-view="list"] .detail { display: none; }
+
+            header { flex-wrap: wrap; gap: 10px; padding: 10px 14px; }
+            header .spacer { display: none; }
+
+            .list { border-right: 0; }
+            .meta { padding: 14px 16px; }
+            .meta h1 { font-size: 16px; }
+            .toolbar { padding: 8px 14px 0; gap: 8px; overflow-x: auto; }
+            .stage { padding: 12px; }
+
+            /* The desktop/tablet/mobile preview switch makes no sense on a phone. */
+            .viewport-switch { display: none; }
+            .frame-wrap.tablet, .frame-wrap.mobile { max-width: 100%; }
+
+            .mobile-back {
+                display: flex; align-items: center; gap: 6px;
+                padding: 11px 16px; background: var(--panel);
+                border-bottom: 1px solid var(--border);
+                color: var(--accent); text-decoration: none; font-weight: 600; font-size: 13px;
+            }
+        }
+
         [x-cloak] { display: none !important; }
     </style>
 </head>
@@ -122,7 +151,7 @@
         @endif
     </header>
 
-    <main>
+    <main data-view="{{ request()->filled('m') ? 'message' : 'list' }}">
         <div class="list">
             @forelse($messages as $message)
                 <a class="item {{ $selected && $selected->uuid === $message->uuid ? 'active' : '' }} {{ $message->read ? '' : 'unread' }}"
@@ -145,6 +174,7 @@
         </div>
 
         <div class="detail">
+            <a class="mobile-back" href="{{ route('maillens.index') }}">&larr; Inbox</a>
             @if($selected)
                 <div class="meta">
                     <h1>{{ $selected->subject ?: '(no subject)' }}</h1>
