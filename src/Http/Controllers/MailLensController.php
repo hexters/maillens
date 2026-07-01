@@ -17,8 +17,7 @@ class MailLensController
         $selected = null;
 
         if ($request->filled('m')) {
-            $selected = $messages->firstWhere('id', (int) $request->query('m'))
-                ?? MailLensMessage::find($request->query('m'));
+            $selected = $messages->firstWhere('uuid', $request->query('m'));
         }
 
         $selected ??= $messages->first();
@@ -30,6 +29,18 @@ class MailLensController
         return view('maillens::index', [
             'messages' => $messages,
             'selected' => $selected,
+        ]);
+    }
+
+    /**
+     * Lightweight signal the inbox polls so it can refresh when mail arrives
+     * or is removed. Returns the message count and the newest message's uuid.
+     */
+    public function poll()
+    {
+        return response()->json([
+            'count' => MailLensMessage::count(),
+            'latest' => MailLensMessage::query()->orderByDesc('id')->value('uuid'),
         ]);
     }
 

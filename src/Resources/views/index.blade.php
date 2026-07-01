@@ -125,8 +125,8 @@
     <main>
         <div class="list">
             @forelse($messages as $message)
-                <a class="item {{ $selected && $selected->id === $message->id ? 'active' : '' }} {{ $message->read ? '' : 'unread' }}"
-                   href="{{ route('maillens.index', ['m' => $message->id]) }}">
+                <a class="item {{ $selected && $selected->uuid === $message->uuid ? 'active' : '' }} {{ $message->read ? '' : 'unread' }}"
+                   href="{{ route('maillens.index', ['m' => $message->uuid]) }}">
                     <div class="top">
                         <span class="from">{{ $message->from_line ?: '(no sender)' }}</span>
                         <span class="time">{{ $message->created_at?->diffForHumans(null, true) }}</span>
@@ -225,5 +225,32 @@
             @endif
         </div>
     </main>
+
+    <script>
+        // Keep the inbox fresh like Mailtrap: poll while the tab is visible and
+        // refresh the moment it regains focus. We only reload when something
+        // actually changed (new mail arrived or mail was removed), so reading
+        // a message is never interrupted needlessly. The current ?m= stays in
+        // the URL, so your open message stays open across the refresh.
+        (function () {
+            var url = {{ \Illuminate\Support\Js::from(route('maillens.poll')) }};
+            var current = {{ \Illuminate\Support\Js::from($messages->count() . ':' . ($messages->first()?->uuid ?? '')) }};
+
+            function check() {
+                fetch(url, { headers: { 'Accept': 'application/json' } })
+                    .then(function (r) { return r.ok ? r.json() : null; })
+                    .then(function (data) {
+                        if (!data) return;
+                        var signature = data.count + ':' + (data.latest || '');
+                        if (signature !== current) window.location.reload();
+                    })
+                    .catch(function () {});
+            }
+
+            setInterval(function () { if (!document.hidden) check(); }, 5000);
+            document.addEventListener('visibilitychange', function () { if (!document.hidden) check(); });
+            window.addEventListener('focus', check);
+        })();
+    </script>
 </body>
 </html>

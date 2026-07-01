@@ -50,9 +50,48 @@ class CaptureTest extends TestCase
         $this->assertSame('file contents', base64_decode($attachments[0]['content']));
     }
 
+    public function test_messages_get_a_uuid_used_as_the_route_key(): void
+    {
+        Mail::html('<p>hi</p>', function ($message) {
+            $message->to('to@example.com')->subject('Has uuid');
+        });
+
+        $mail = MailLensMessage::first();
+
+        $this->assertNotNull($mail->uuid);
+        $this->assertSame($mail->uuid, $mail->getRouteKey());
+        $this->assertStringContainsString($mail->uuid, route('maillens.html', $mail));
+    }
+
     public function test_inbox_is_reachable(): void
     {
         $this->get('/mail')->assertOk();
+    }
+
+    public function test_selecting_a_message_by_uuid(): void
+    {
+        Mail::html('<p>pick me</p>', function ($message) {
+            $message->to('to@example.com')->subject('Selected by uuid');
+        });
+
+        $mail = MailLensMessage::first();
+
+        $this->get('/mail?m=' . $mail->uuid)
+            ->assertOk()
+            ->assertSee('Selected by uuid');
+    }
+
+    public function test_poll_reports_count_and_latest_uuid(): void
+    {
+        Mail::html('<p>hi</p>', function ($message) {
+            $message->to('to@example.com')->subject('Poll me');
+        });
+
+        $latest = MailLensMessage::query()->orderByDesc('id')->first();
+
+        $this->get('/mail/poll')
+            ->assertOk()
+            ->assertJson(['count' => 1, 'latest' => $latest->uuid]);
     }
 
     public function test_logo_is_served(): void

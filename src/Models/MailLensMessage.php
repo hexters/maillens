@@ -3,6 +3,7 @@
 namespace Hexters\MailLens\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class MailLensMessage extends Model
 {
@@ -17,6 +18,24 @@ class MailLensMessage extends Model
         'attachments' => 'array',
         'read' => 'boolean',
     ];
+
+    protected static function booted(): void
+    {
+        // Give every message a UUID. The numeric id stays as the primary key,
+        // but the UUID is what public URLs (?m=..) and route binding use, so we
+        // never leak the row id or how many messages exist.
+        static::creating(function (self $message) {
+            $message->uuid ??= (string) Str::uuid();
+        });
+    }
+
+    /**
+     * Bind {message} route params and resolve links by UUID, not id.
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'uuid';
+    }
 
     public function getTable(): string
     {

@@ -11,7 +11,8 @@ Initial release.
 - Read captured mail in the browser at `/mail`: a light, two-pane inbox with
   HTML / Text / Source tabs, downloadable attachments, and a desktop / tablet /
   mobile preview switch.
-- Zero configuration: the `lens` mailer is injected automatically and the
-  messages table migrates on its own. Routes and table only load while
-  `MAIL_MAILER=lens`, so the package stays out of the way everywhere else.
+- Almost no setup: the `lens` mailer is injected automatically, so you only set
+  `MAIL_MAILER=lens` and run `php artisan migrate` once. The route and migration
+  only load while `MAIL_MAILER=lens`, so the package stays out of the way
+  everywhere else.
 - Supports Laravel 10, 11, 12, and 13 on PHP 8.1+.

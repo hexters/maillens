@@ -7,6 +7,7 @@
 <p align="center">
   <a href="https://packagist.org/packages/hexters/maillens"><img src="https://poser.pugx.org/hexters/maillens/v/stable" alt="Latest Stable Version"></a>
   <a href="https://packagist.org/packages/hexters/maillens"><img src="https://poser.pugx.org/hexters/maillens/downloads" alt="Total Downloads"></a>
+  <a href="https://github.com/hexters/maillens/actions/workflows/tests.yml"><img src="https://github.com/hexters/maillens/actions/workflows/tests.yml/badge.svg" alt="Tests"></a>
   <a href="https://packagist.org/packages/hexters/maillens"><img src="https://poser.pugx.org/hexters/maillens/license" alt="License"></a>
 </p>
 
@@ -30,12 +31,21 @@ lives inside your own app.
 composer require hexters/maillens --dev
 ```
 
-The service provider registers itself and the table migrates on its own. After
-that, set the mailer in your `.env`:
+The service provider registers itself. Set the mailer in your `.env`:
 
 ```dotenv
 MAIL_MAILER=lens
 ```
+
+Then run the migration to create the table MailLens stores mail in:
+
+```bash
+php artisan migrate
+```
+
+Set `MAIL_MAILER=lens` before you migrate. The migration only loads while that
+mailer is active, so running `migrate` first would skip it and the table would
+not be created.
 
 Now send mail the way you normally would and open `/mail` to read it. You do not
 need to touch `config/mail.php`; MailLens adds the `lens` mailer for you.

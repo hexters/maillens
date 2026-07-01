@@ -7,6 +7,7 @@ Route::middleware(config('maillens.middleware', ['web']))
     ->prefix(config('maillens.route_prefix', 'mail'))
     ->group(function () {
         Route::get('/', [MailLensController::class, 'index'])->name('maillens.index');
+        Route::get('/poll', [MailLensController::class, 'poll'])->name('maillens.poll');
         Route::get('/logo.png', [MailLensController::class, 'logo'])->name('maillens.logo');
         Route::delete('/', [MailLensController::class, 'clear'])->name('maillens.clear');
         Route::get('/{message}/html', [MailLensController::class, 'html'])->name('maillens.html');

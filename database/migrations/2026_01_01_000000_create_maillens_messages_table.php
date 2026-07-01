@@ -10,6 +10,7 @@ return new class extends Migration
     {
         Schema::create($this->table(), function (Blueprint $table) {
             $table->id();
+            $table->uuid('uuid')->unique();
             $table->string('message_id')->nullable()->index();
             $table->string('subject')->nullable();
             $table->json('from')->nullable();
