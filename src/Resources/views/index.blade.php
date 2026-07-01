@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" x-data="{ tab: 'html', viewport: 'desktop' }">
+<html lang="en" x-data="{ tab: 'html', viewport: 'desktop', metaOpen: false }">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -31,12 +31,14 @@
         header .count { color: var(--muted); font-size: 12px; }
         header .spacer { flex: 1; }
         .btn {
+            display: inline-flex; align-items: center; gap: 6px;
             background: var(--panel); color: var(--text); border: 1px solid var(--border);
             padding: 7px 13px; border-radius: 8px; cursor: pointer; font-size: 13px; text-decoration: none;
             box-shadow: var(--shadow); transition: border-color .12s, color .12s, background .12s;
         }
         .btn:hover { border-color: var(--accent); color: var(--accent); }
         .btn.danger:hover { border-color: var(--danger); color: var(--danger); }
+        .btn-ico { width: 16px; height: 16px; display: none; }
         main { display: grid; grid-template-columns: 350px 1fr; min-height: 0; }
         .list { border-right: 1px solid var(--border); overflow-y: auto; background: var(--panel); }
         .item {
@@ -61,6 +63,8 @@
         .meta .row { display: flex; gap: 8px; margin: 3px 0; font-size: 13px; }
         .meta .row .k { color: var(--muted); width: 60px; flex-shrink: 0; }
         .meta .row .v { word-break: break-word; }
+        .meta-summary { display: none; }
+        .meta-details { display: block; }
         .toolbar {
             display: flex; align-items: center; gap: 10px; padding: 8px 22px 0;
             background: var(--panel); border-bottom: 1px solid var(--border);
@@ -109,14 +113,34 @@
             main[data-view="message"] .list { display: none; }
             main[data-view="list"] .detail { display: none; }
 
-            header { flex-wrap: wrap; gap: 10px; padding: 10px 14px; }
-            header .spacer { display: none; }
+            header { gap: 8px; padding: 10px 14px; }
+            header .count { display: none; }
+            header .logo { font-size: 14px; }
+            header .logo img { height: 22px; }
+            .btn { padding: 7px 9px; }
+            .btn-ico { display: inline-flex; }
+            .btn-label { display: none; }
 
             .list { border-right: 0; }
             .meta { padding: 14px 16px; }
-            .meta h1 { font-size: 16px; }
+            .meta h1 { font-size: 16px; margin-bottom: 8px; }
             .toolbar { padding: 8px 14px 0; gap: 8px; overflow-x: auto; }
             .stage { padding: 12px; }
+
+            /* Gmail-style collapsible headers: compact sender line + chevron. */
+            .meta-summary {
+                display: flex; align-items: center; gap: 8px; width: 100%;
+                background: transparent; border: 0; padding: 0; cursor: pointer;
+                font: inherit; text-align: left;
+            }
+            .meta-sender {
+                flex: 1; min-width: 0; font-size: 13px; color: var(--muted);
+                overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+            }
+            .meta-chevron { width: 18px; height: 18px; flex-shrink: 0; color: var(--muted); transition: transform .15s; }
+            .meta.meta-open .meta-chevron { transform: rotate(180deg); }
+            .meta-details { display: none; margin-top: 10px; }
+            .meta.meta-open .meta-details { display: block; }
 
             /* The desktop/tablet/mobile preview switch makes no sense on a phone. */
             .viewport-switch { display: none; }
@@ -141,12 +165,18 @@
         </div>
         <div class="count">{{ $messages->count() }} message{{ $messages->count() === 1 ? '' : 's' }}</div>
         <div class="spacer"></div>
-        <a class="btn" href="{{ route('maillens.index') }}">Refresh</a>
+        <a class="btn" href="{{ route('maillens.index') }}" title="Refresh">
+            <svg class="btn-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+            <span class="btn-label">Refresh</span>
+        </a>
         @if($messages->isNotEmpty())
             <form class="inline" method="POST" action="{{ route('maillens.clear') }}"
                   onsubmit="return confirm('Delete all captured mail?')">
                 @csrf @method('DELETE')
-                <button class="btn danger" type="submit">Clear all</button>
+                <button class="btn danger" type="submit" title="Clear all">
+                    <svg class="btn-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M10 11v6M14 11v6"/></svg>
+                    <span class="btn-label">Clear all</span>
+                </button>
             </form>
         @endif
     </header>
@@ -176,14 +206,24 @@
         <div class="detail">
             <a class="mobile-back" href="{{ route('maillens.index') }}">&larr; Inbox</a>
             @if($selected)
-                <div class="meta">
+                <div class="meta" :class="{ 'meta-open': metaOpen }">
                     <h1>{{ $selected->subject ?: '(no subject)' }}</h1>
-                    <div class="row"><span class="k">From</span><span class="v">{{ $selected->from_line ?: '—' }}</span></div>
-                    <div class="row"><span class="k">To</span><span class="v">{{ $selected->to_line ?: '—' }}</span></div>
-                    @if($selected->cc)
-                        <div class="row"><span class="k">Cc</span><span class="v">{{ $selected->formatAddresses($selected->cc) }}</span></div>
-                    @endif
-                    <div class="row"><span class="k">Date</span><span class="v">{{ $selected->created_at?->toDayDateTimeString() }}</span></div>
+
+                    {{-- Gmail-style: a compact sender line with a chevron that expands
+                         the full headers. On desktop the details are always shown. --}}
+                    <button type="button" class="meta-summary" @click="metaOpen = !metaOpen" :aria-expanded="metaOpen">
+                        <span class="meta-sender">{{ $selected->from_line ?: '(no sender)' }}</span>
+                        <svg class="meta-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+                    </button>
+
+                    <div class="meta-details">
+                        <div class="row"><span class="k">From</span><span class="v">{{ $selected->from_line ?: '—' }}</span></div>
+                        <div class="row"><span class="k">To</span><span class="v">{{ $selected->to_line ?: '—' }}</span></div>
+                        @if($selected->cc)
+                            <div class="row"><span class="k">Cc</span><span class="v">{{ $selected->formatAddresses($selected->cc) }}</span></div>
+                        @endif
+                        <div class="row"><span class="k">Date</span><span class="v">{{ $selected->created_at?->toDayDateTimeString() }}</span></div>
+                    </div>
                 </div>
 
                 <div class="toolbar">
