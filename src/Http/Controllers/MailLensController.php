@@ -26,10 +26,13 @@ class MailLensController
             $selected->forceFill(['read' => true])->save();
         }
 
-        return view('maillens::index', [
-            'messages' => $messages,
-            'selected' => $selected,
-        ]);
+        return response()
+            ->view('maillens::index', [
+                'messages' => $messages,
+                'selected' => $selected,
+            ])
+            // The inbox updates itself, so never let a browser serve a stale copy.
+            ->header('Cache-Control', 'no-store, no-cache, must-revalidate');
     }
 
     /**
