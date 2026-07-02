@@ -81,6 +81,18 @@ anything other than `lens`, MailLens stays quiet: it does not register the
 Keep `MAIL_MAILER=lens` out of your production `.env` and your mail will send
 for real there.
 
+## Password protection
+
+By default `/mail` is open, which is fine on your own machine. If the inbox
+lives somewhere other people can reach, such as a shared staging server, set a
+password and MailLens asks for it before showing anything:
+
+```dotenv
+MAILLENS_PASSWORD=some-secret
+```
+
+Leave it unset and there is no lock screen.
+
 ## Configuration
 
 Most people never need this, but you can publish the config file to change the
@@ -91,8 +103,9 @@ php artisan vendor:publish --tag=maillens-config
 ```
 
 ```dotenv
-MAILLENS_ROUTE_PREFIX=mail  # the inbox lives here
-MAILLENS_LIMIT=200          # how many messages to keep (null keeps all of them)
+MAILLENS_PASSWORD=            # protect /mail with a password (unset = open)
+MAILLENS_ROUTE_PREFIX=mail    # the inbox lives here
+MAILLENS_LIMIT=200            # how many messages to keep (null keeps all of them)
 ```
 
 Captured mail is saved on your app's default database connection.

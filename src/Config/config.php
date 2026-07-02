@@ -32,6 +32,21 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Password
+    |--------------------------------------------------------------------------
+    |
+    | Leave this null and /mail is open (fine for local dev). Set a password
+    | and MailLens asks for it before showing anything — handy when the inbox
+    | lives somewhere other people can reach, like a shared staging server.
+    |
+    |   MAILLENS_PASSWORD=some-secret
+    |
+    */
+
+    'password' => env('MAILLENS_PASSWORD'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Retention
     |--------------------------------------------------------------------------
     |

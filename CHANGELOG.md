@@ -15,4 +15,6 @@ Initial release.
   `MAIL_MAILER=lens` and run `php artisan migrate` once. The route and migration
   only load while `MAIL_MAILER=lens`, so the package stays out of the way
   everywhere else.
+- Optional password protection: set `MAILLENS_PASSWORD` and `/mail` shows a lock
+  screen before anything else. Left unset, the inbox stays open.
 - Supports Laravel 10, 11, 12, and 13 on PHP 8.1+.
