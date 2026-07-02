@@ -38,6 +38,8 @@
         }
         .btn:hover { border-color: var(--accent); color: var(--accent); }
         .btn.danger:hover { border-color: var(--danger); color: var(--danger); }
+        .btn.btn-lock { background: var(--danger); border-color: var(--danger); color: #fff; }
+        .btn.btn-lock:hover { border-color: var(--danger); color: #fff; filter: brightness(.95); }
         .btn-ico { width: 16px; height: 16px; display: none; }
         main { display: grid; grid-template-columns: 350px 1fr; min-height: 0; }
         .list { border-right: 1px solid var(--border); overflow-y: auto; background: var(--panel); }
@@ -182,9 +184,9 @@
         @if(filled(config('maillens.password')))
             <form class="inline" method="POST" action="{{ route('maillens.logout') }}">
                 @csrf
-                <button class="btn" type="submit" title="Log out">
-                    <svg class="btn-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></svg>
-                    <span class="btn-label">Log out</span>
+                <button class="btn btn-lock" type="submit" title="Lock">
+                    <svg class="btn-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    <span class="btn-label">Lock</span>
                 </button>
             </form>
         @endif
