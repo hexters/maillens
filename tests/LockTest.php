@@ -59,4 +59,28 @@ class LockTest extends TestCase
             ->assertOk()
             ->assertHeader('Content-Type', 'image/png');
     }
+
+    public function test_logout_locks_the_inbox_again(): void
+    {
+        config(['maillens.password' => 'secret']);
+
+        $this->withSession(['maillens_unlocked' => true])
+            ->post('/mail/logout')
+            ->assertRedirect(route('maillens.index'))
+            ->assertSessionMissing('maillens_unlocked');
+    }
+
+    public function test_logout_button_shows_only_when_a_password_is_set(): void
+    {
+        config(['maillens.password' => 'secret']);
+        $this->withSession(['maillens_unlocked' => true])
+            ->get('/mail')
+            ->assertOk()
+            ->assertSee(route('maillens.logout'));
+
+        config(['maillens.password' => null]);
+        $this->get('/mail')
+            ->assertOk()
+            ->assertDontSee(route('maillens.logout'));
+    }
 }

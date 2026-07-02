@@ -13,6 +13,7 @@ Route::middleware(config('maillens.middleware', ['web']))
         Route::middleware(MailLensGuard::class)->group(function () {
             Route::get('/', [MailLensController::class, 'index'])->name('maillens.index');
             Route::post('/unlock', fn () => redirect()->route('maillens.index'))->name('maillens.unlock');
+            Route::post('/logout', [MailLensController::class, 'logout'])->name('maillens.logout');
             Route::get('/poll', [MailLensController::class, 'poll'])->name('maillens.poll');
             Route::delete('/', [MailLensController::class, 'clear'])->name('maillens.clear');
             Route::get('/{message}/html', [MailLensController::class, 'html'])->name('maillens.html');

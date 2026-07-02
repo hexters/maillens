@@ -91,4 +91,11 @@ class MailLensController
 
         return redirect()->route('maillens.index');
     }
+
+    public function logout(Request $request)
+    {
+        $request->session()->forget('maillens_unlocked');
+
+        return redirect()->route('maillens.index');
+    }
 }

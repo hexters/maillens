@@ -179,6 +179,15 @@
                 </button>
             </form>
         @endif
+        @if(filled(config('maillens.password')))
+            <form class="inline" method="POST" action="{{ route('maillens.logout') }}">
+                @csrf
+                <button class="btn" type="submit" title="Log out">
+                    <svg class="btn-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></svg>
+                    <span class="btn-label">Log out</span>
+                </button>
+            </form>
+        @endif
     </header>
 
     <main data-view="{{ request()->filled('m') ? 'message' : 'list' }}">
