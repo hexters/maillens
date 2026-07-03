@@ -10,7 +10,18 @@ class MailLensController
 {
     public function index(Request $request)
     {
+        $search = trim((string) $request->query('q', ''));
+
         $messages = MailLensMessage::query()
+            ->when($search !== '', function ($query) use ($search) {
+                $like = '%' . $search . '%';
+                $query->where(function ($where) use ($like) {
+                    $where->where('subject', 'like', $like)
+                        ->orWhere('from', 'like', $like)
+                        ->orWhere('to', 'like', $like)
+                        ->orWhere('text', 'like', $like);
+                });
+            })
             ->orderByDesc('id')
             ->get();
 
@@ -30,6 +41,7 @@ class MailLensController
             ->view('maillens::index', [
                 'messages' => $messages,
                 'selected' => $selected,
+                'search' => $search,
             ])
             // The inbox updates itself, so never let a browser serve a stale copy.
             ->header('Cache-Control', 'no-store, no-cache, must-revalidate');

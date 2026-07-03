@@ -43,6 +43,16 @@
         .btn-ico { width: 16px; height: 16px; display: none; }
         main { display: grid; grid-template-columns: 350px 1fr; min-height: 0; }
         .list { border-right: 1px solid var(--border); overflow-y: auto; background: var(--panel); }
+        .search {
+            position: sticky; top: 0; z-index: 2; display: flex; align-items: center; gap: 8px;
+            padding: 10px 14px; background: var(--panel); border-bottom: 1px solid var(--border);
+        }
+        .search svg { width: 15px; height: 15px; color: var(--muted); flex-shrink: 0; }
+        .search input {
+            flex: 1; min-width: 0; border: 0; outline: none; background: transparent;
+            font-size: 13px; color: var(--text); padding: 2px 0;
+        }
+        .search input::placeholder { color: var(--muted); }
         .item {
             display: block; padding: 13px 18px; border-bottom: 1px solid var(--border);
             text-decoration: none; color: var(--text);
@@ -168,7 +178,7 @@
         </div>
         <div class="count">{{ $messages->count() }} message{{ $messages->count() === 1 ? '' : 's' }}</div>
         <div class="spacer"></div>
-        <a class="btn" href="{{ route('maillens.index') }}" title="Refresh">
+        <a class="btn" href="{{ route('maillens.index', array_filter(['q' => $search])) }}" title="Refresh">
             <svg class="btn-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
             <span class="btn-label">Refresh</span>
         </a>
@@ -195,9 +205,14 @@
 
     <main data-view="{{ request()->filled('m') ? 'message' : 'list' }}">
         <div class="list">
+            <form class="search" method="GET" action="{{ route('maillens.index') }}">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+                <input type="search" name="q" value="{{ $search }}" placeholder="Search subject, to, from…" autocomplete="off" @if($search !== '') autofocus @endif>
+            </form>
+
             @forelse($messages as $message)
                 <a class="item {{ $selected && $selected->uuid === $message->uuid ? 'active' : '' }} {{ $message->read ? '' : 'unread' }}"
-                   href="{{ route('maillens.index', ['m' => $message->uuid]) }}">
+                   href="{{ route('maillens.index', array_filter(['m' => $message->uuid, 'q' => $search])) }}">
                     <div class="subject">{{ $message->subject ?: '(no subject)' }}</div>
                     <div class="bottom">
                         <span class="to">to: {{ $message->recipients ?: '—' }}</span>
@@ -206,16 +221,23 @@
                 </a>
             @empty
                 <div class="empty">
-                    <div>
-                        <div class="big">Inbox is empty</div>
-                        Send an email with <code>MAIL_MAILER={{ config('maillens.mailer', 'lens') }}</code><br>and it shows up here.
-                    </div>
+                    @if($search !== '')
+                        <div>
+                            <div class="big">No matches</div>
+                            Nothing matches &ldquo;{{ $search }}&rdquo;.
+                        </div>
+                    @else
+                        <div>
+                            <div class="big">Inbox is empty</div>
+                            Send an email with <code>MAIL_MAILER={{ config('maillens.mailer', 'lens') }}</code><br>and it shows up here.
+                        </div>
+                    @endif
                 </div>
             @endforelse
         </div>
 
         <div class="detail">
-            <a class="mobile-back" href="{{ route('maillens.index') }}">&larr; Inbox</a>
+            <a class="mobile-back" href="{{ route('maillens.index', array_filter(['q' => $search])) }}">&larr; Inbox</a>
             @if($selected)
                 <div class="meta" :class="{ 'meta-open': metaOpen }">
                     <div class="meta-top">
@@ -335,6 +357,19 @@
             setInterval(function () { if (!document.hidden) check(); }, 5000);
             document.addEventListener('visibilitychange', function () { if (!document.hidden) check(); });
             window.addEventListener('focus', check);
+        })();
+
+        // Search: submit shortly after the user stops typing, and keep the caret
+        // at the end of the box after the page reloads with results.
+        (function () {
+            var input = document.querySelector('.search input[name=q]');
+            if (!input) return;
+            if (input.value) { var v = input.value; input.value = ''; input.value = v; }
+            var timer;
+            input.addEventListener('input', function () {
+                clearTimeout(timer);
+                timer = setTimeout(function () { input.form.submit(); }, 400);
+            });
         })();
     </script>
 </body>

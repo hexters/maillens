@@ -68,6 +68,30 @@ class CaptureTest extends TestCase
         $this->get('/mail')->assertOk();
     }
 
+    public function test_search_filters_by_subject_and_recipient(): void
+    {
+        Mail::html('<p>a</p>', function ($message) {
+            $message->to('alice@example.com')->subject('Invoice paid');
+        });
+        Mail::html('<p>b</p>', function ($message) {
+            $message->to('bob@example.com')->subject('Password reset');
+        });
+
+        $this->get('/mail?q=Invoice')
+            ->assertOk()
+            ->assertSee('Invoice paid')
+            ->assertDontSee('Password reset');
+
+        $this->get('/mail?q=bob@example.com')
+            ->assertOk()
+            ->assertSee('Password reset')
+            ->assertDontSee('Invoice paid');
+
+        $this->get('/mail?q=nothingmatchesthis')
+            ->assertOk()
+            ->assertSee('No matches');
+    }
+
     public function test_selecting_a_message_by_uuid(): void
     {
         Mail::html('<p>pick me</p>', function ($message) {
