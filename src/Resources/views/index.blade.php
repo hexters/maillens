@@ -44,15 +44,14 @@
         main { display: grid; grid-template-columns: 350px 1fr; min-height: 0; }
         .list { border-right: 1px solid var(--border); overflow-y: auto; background: var(--panel); }
         .item {
-            display: flex; align-items: center; gap: 12px;
-            padding: 13px 18px; border-bottom: 1px solid var(--border);
+            display: block; padding: 13px 18px; border-bottom: 1px solid var(--border);
             text-decoration: none; color: var(--text);
         }
         .item:hover { background: var(--panel-2); }
         .item.active { background: var(--accent-soft); box-shadow: inset 3px 0 0 var(--accent); }
-        .item-main { flex: 1; min-width: 0; }
         .item .subject { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .item .to { color: var(--muted); font-size: 12px; margin-top: 3px;
+        .item .bottom { display: flex; align-items: baseline; gap: 8px; margin-top: 3px; }
+        .item .to { flex: 1; min-width: 0; color: var(--muted); font-size: 12px;
             overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .item .time { color: var(--muted); font-size: 11px; white-space: nowrap; flex-shrink: 0; }
         .item.unread .subject::before {
@@ -197,11 +196,11 @@
             @forelse($messages as $message)
                 <a class="item {{ $selected && $selected->uuid === $message->uuid ? 'active' : '' }} {{ $message->read ? '' : 'unread' }}"
                    href="{{ route('maillens.index', ['m' => $message->uuid]) }}">
-                    <div class="item-main">
-                        <div class="subject">{{ $message->subject ?: '(no subject)' }}</div>
-                        <div class="to">to: {{ $message->recipients ?: '—' }}</div>
+                    <div class="subject">{{ $message->subject ?: '(no subject)' }}</div>
+                    <div class="bottom">
+                        <span class="to">to: {{ $message->recipients ?: '—' }}</span>
+                        <span class="time">{{ $message->created_at?->diffForHumans() }}</span>
                     </div>
-                    <span class="time">{{ $message->created_at?->diffForHumans() }}</span>
                 </a>
             @empty
                 <div class="empty">
