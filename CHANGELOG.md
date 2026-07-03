@@ -2,6 +2,12 @@
 
 All notable changes to `hexters/maillens` will be documented in this file.
 
+## v1.3.1
+
+- Fix horizontal scroll from long subjects: the list truncates them to one
+  line, while the reading pane wraps the subject in full and, on mobile, moves
+  the date up into the app bar.
+
 ## v1.3.0
 
 - Redesign the inbox around the sidebar: the branding and the Lock button move
@@ -13,9 +19,6 @@ All notable changes to `hexters/maillens` will be documented in this file.
 - Clear all now asks for confirmation in a modal instead of the browser popup.
 - Simpler list rows (subject over `to: <addr>`, relative time) and the message
   date moved to the top-right of the reading pane.
-- Fix horizontal scroll from long subjects: the list truncates them to one
-  line, while the reading pane wraps the subject in full and, on mobile, moves
-  the date up into the app bar.
 
 ## v1.2.0
 
