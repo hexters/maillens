@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" x-data="{ tab: 'html', viewport: 'desktop', metaOpen: false }">
+<html lang="en" x-data="{ tab: 'html', viewport: 'desktop', metaOpen: false, clearModal: false }">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -126,6 +126,28 @@
         .empty code { background: var(--panel); border: 1px solid var(--border); border-radius: 5px; padding: 2px 6px; }
         form.inline { display: inline; }
 
+        .btn-solid-danger { background: var(--danger); border-color: var(--danger); color: #fff; }
+        .btn-solid-danger:hover { border-color: var(--danger); color: #fff; filter: brightness(.95); }
+        .modal-overlay {
+            position: fixed; inset: 0; z-index: 100; display: flex; align-items: center; justify-content: center;
+            padding: 20px; background: rgba(16,24,40,.45); backdrop-filter: blur(2px);
+        }
+        .modal {
+            width: 100%; max-width: 380px; background: var(--panel); border-radius: 14px;
+            padding: 24px; box-shadow: 0 20px 50px rgba(16,24,40,.28); text-align: center;
+        }
+        .modal-icon {
+            width: 46px; height: 46px; margin: 0 auto 14px; border-radius: 50%;
+            display: grid; place-items: center; background: #fdecec; color: var(--danger);
+        }
+        .modal-icon svg { width: 22px; height: 22px; }
+        .modal h2 { margin: 0 0 6px; font-size: 17px; }
+        .modal p { margin: 0 0 20px; color: var(--muted); font-size: 13px; line-height: 1.5; }
+        .modal-actions { display: flex; gap: 10px; }
+        .modal-actions > .btn { flex: 1; }
+        .modal-actions form { flex: 1; }
+        .modal-actions .btn { width: 100%; justify-content: center; padding: 9px 14px; }
+
         /* One pane at a time on phones: the list, or the open message. */
         .mobile-back { display: none; }
         @media (max-width: 820px) {
@@ -208,13 +230,9 @@
                 <a class="icon-btn" href="{{ route('maillens.index', array_filter(['q' => $search])) }}" title="Refresh">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
                 </a>
-                <form class="inline" method="POST" action="{{ route('maillens.clear') }}"
-                      onsubmit="return confirm('Delete all captured mail?')">
-                    @csrf @method('DELETE')
-                    <button class="icon-btn danger" type="submit" title="Clear all messages">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M10 11v6M14 11v6"/></svg>
-                    </button>
-                </form>
+                <button class="icon-btn danger" type="button" title="Clear all messages" @click="clearModal = true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M10 11v6M14 11v6"/></svg>
+                </button>
             </div>
 
             <div class="list-items">
@@ -341,6 +359,24 @@
             @endif
         </div>
     </main>
+
+    <div class="modal-overlay" x-show="clearModal" x-cloak
+         @keydown.escape.window="clearModal = false" @click.self="clearModal = false">
+        <div class="modal">
+            <div class="modal-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M10 11v6M14 11v6"/></svg>
+            </div>
+            <h2>Clear all messages?</h2>
+            <p>This permanently deletes every captured email. This can’t be undone.</p>
+            <div class="modal-actions">
+                <button type="button" class="btn" @click="clearModal = false">Cancel</button>
+                <form method="POST" action="{{ route('maillens.clear') }}">
+                    @csrf @method('DELETE')
+                    <button type="submit" class="btn btn-solid-danger">Delete all</button>
+                </form>
+            </div>
+        </div>
+    </div>
 
     <script>
         // Keep the inbox fresh like Mailtrap: poll while the tab is visible and
