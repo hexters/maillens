@@ -60,7 +60,9 @@
         }
         .detail { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
         .meta { padding: 16px 22px; border-bottom: 1px solid var(--border); background: var(--panel); }
-        .meta h1 { margin: 0 0 10px; font-size: 18px; }
+        .meta-top { display: flex; align-items: baseline; justify-content: space-between; gap: 14px; }
+        .meta h1 { margin: 0 0 10px; font-size: 18px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .meta-date { color: var(--muted); font-size: 12px; white-space: nowrap; flex-shrink: 0; }
         .meta .row { display: flex; gap: 8px; margin: 3px 0; font-size: 13px; }
         .meta .row .k { color: var(--muted); width: 60px; flex-shrink: 0; }
         .meta .row .v { word-break: break-word; }
@@ -216,7 +218,10 @@
             <a class="mobile-back" href="{{ route('maillens.index') }}">&larr; Inbox</a>
             @if($selected)
                 <div class="meta" :class="{ 'meta-open': metaOpen }">
-                    <h1>{{ $selected->subject ?: '(no subject)' }}</h1>
+                    <div class="meta-top">
+                        <h1>{{ $selected->subject ?: '(no subject)' }}</h1>
+                        <span class="meta-date">{{ $selected->created_at?->toDayDateTimeString() }}</span>
+                    </div>
 
                     {{-- Gmail-style: a compact sender line with a chevron that expands
                          the full headers. On desktop the details are always shown. --}}
@@ -231,7 +236,6 @@
                         @if($selected->cc)
                             <div class="row"><span class="k">Cc</span><span class="v">{{ $selected->formatAddresses($selected->cc) }}</span></div>
                         @endif
-                        <div class="row"><span class="k">Date</span><span class="v">{{ $selected->created_at?->toDayDateTimeString() }}</span></div>
                     </div>
                 </div>
 
