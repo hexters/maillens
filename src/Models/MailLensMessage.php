@@ -65,6 +65,18 @@ class MailLensMessage extends Model
         return $this->formatAddresses($this->to);
     }
 
+    /**
+     * Recipients with the address always in angle brackets, e.g. "<a@b.com>"
+     * or "Name <a@b.com>" — used for the compact inbox list.
+     */
+    public function getRecipientsAttribute(): string
+    {
+        return collect($this->to ?? [])
+            ->map(fn ($a) => trim(sprintf('%s <%s>', $a['name'] ?? '', $a['address'] ?? '')))
+            ->filter()
+            ->implode(', ');
+    }
+
     public function getPreviewAttribute(): string
     {
         $body = $this->text ?: strip_tags((string) $this->html);
