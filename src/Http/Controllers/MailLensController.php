@@ -97,6 +97,13 @@ class MailLensController
         return redirect()->route('maillens.index');
     }
 
+    public function markAllRead()
+    {
+        MailLensMessage::query()->where('read', false)->update(['read' => true]);
+
+        return back();
+    }
+
     public function clear()
     {
         MailLensMessage::query()->delete();

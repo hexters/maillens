@@ -17,19 +17,12 @@
         html, body { margin: 0; height: 100%; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background: var(--bg); color: var(--text); font-size: 14px;
-            display: grid; grid-template-rows: auto 1fr; height: 100vh;
+            background: var(--bg); color: var(--text); font-size: 14px; height: 100vh;
         }
-        header {
-            display: flex; align-items: center; gap: 12px;
-            padding: 12px 20px; background: var(--panel); border-bottom: 1px solid var(--border);
-        }
-        header .logo { display: flex; align-items: center; gap: 9px; font-weight: 700; letter-spacing: .2px; font-size: 15px; }
-        header .logo img { height: 26px; width: auto; display: block; }
-        header .logo .wordmark { color: #111318; }
-        header .logo .wordmark span { color: var(--accent); }
-        header .count { color: var(--muted); font-size: 12px; }
-        header .spacer { flex: 1; }
+        .logo { display: flex; align-items: center; gap: 9px; font-weight: 700; letter-spacing: .2px; font-size: 15px; }
+        .logo img { height: 24px; width: auto; display: block; }
+        .logo .wordmark { color: #111318; }
+        .logo .wordmark span { color: var(--accent); }
         .btn {
             display: inline-flex; align-items: center; gap: 6px;
             background: var(--panel); color: var(--text); border: 1px solid var(--border);
@@ -41,18 +34,32 @@
         .btn.btn-lock { background: var(--danger); border-color: var(--danger); color: #fff; }
         .btn.btn-lock:hover { border-color: var(--danger); color: #fff; filter: brightness(.95); }
         .btn-ico { width: 16px; height: 16px; display: none; }
-        main { display: grid; grid-template-columns: 350px 1fr; min-height: 0; }
-        .list { border-right: 1px solid var(--border); overflow-y: auto; background: var(--panel); }
+        main { display: grid; grid-template-columns: 350px 1fr; height: 100vh; min-height: 0; }
+        .list { display: flex; flex-direction: column; min-height: 0; border-right: 1px solid var(--border); background: var(--panel); }
+        .sidebar-head {
+            flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; gap: 10px;
+            padding: 12px 14px; border-bottom: 1px solid var(--border);
+        }
+        .list-toolbar {
+            flex-shrink: 0; display: flex; align-items: center; gap: 6px;
+            padding: 8px 12px; border-bottom: 1px solid var(--border);
+        }
+        .list-items { flex: 1; min-height: 0; overflow-y: auto; }
         .search {
-            position: sticky; top: 0; z-index: 2; display: flex; align-items: center; gap: 8px;
-            padding: 10px 14px; background: var(--panel); border-bottom: 1px solid var(--border);
+            flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px;
+            padding: 7px 11px; background: var(--panel); border: 1px solid var(--border); border-radius: 9px;
         }
+        .search:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(47,111,237,.12); }
         .search svg { width: 15px; height: 15px; color: var(--muted); flex-shrink: 0; }
-        .search input {
-            flex: 1; min-width: 0; border: 0; outline: none; background: transparent;
-            font-size: 13px; color: var(--text); padding: 2px 0;
-        }
+        .search input { flex: 1; min-width: 0; border: 0; outline: none; background: transparent; font-size: 13px; color: var(--text); }
         .search input::placeholder { color: var(--muted); }
+        .icon-btn {
+            display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px;
+            border: 0; background: transparent; border-radius: 8px; color: var(--muted); cursor: pointer; text-decoration: none;
+        }
+        .icon-btn:hover { background: var(--panel-2); color: var(--accent); }
+        .icon-btn.danger:hover { color: var(--danger); }
+        .icon-btn svg { width: 17px; height: 17px; }
         .item {
             display: block; padding: 13px 18px; border-bottom: 1px solid var(--border);
             text-decoration: none; color: var(--text);
@@ -126,10 +133,8 @@
             main[data-view="message"] .list { display: none; }
             main[data-view="list"] .detail { display: none; }
 
-            header { gap: 8px; padding: 10px 14px; }
-            header .count { display: none; }
-            header .logo { font-size: 14px; }
-            header .logo img { height: 22px; }
+            .logo { font-size: 14px; }
+            .logo img { height: 22px; }
             .btn { padding: 7px 9px; }
             .btn-ico { display: inline-flex; }
             .btn-label { display: none; }
@@ -171,45 +176,48 @@
     </style>
 </head>
 <body>
-    <header>
-        <div class="logo">
-            <img src="{{ route('maillens.logo') }}" alt="MailLens">
-            <span class="wordmark">Mail<span>Lens</span></span>
-        </div>
-        <div class="count">{{ $messages->count() }} message{{ $messages->count() === 1 ? '' : 's' }}</div>
-        <div class="spacer"></div>
-        <a class="btn" href="{{ route('maillens.index', array_filter(['q' => $search])) }}" title="Refresh">
-            <svg class="btn-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
-            <span class="btn-label">Refresh</span>
-        </a>
-        @if($messages->isNotEmpty())
-            <form class="inline" method="POST" action="{{ route('maillens.clear') }}"
-                  onsubmit="return confirm('Delete all captured mail?')">
-                @csrf @method('DELETE')
-                <button class="btn danger" type="submit" title="Clear all">
-                    <svg class="btn-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M10 11v6M14 11v6"/></svg>
-                    <span class="btn-label">Clear all</span>
-                </button>
-            </form>
-        @endif
-        @if(filled(config('maillens.password')))
-            <form class="inline" method="POST" action="{{ route('maillens.logout') }}">
-                @csrf
-                <button class="btn btn-lock" type="submit" title="Lock">
-                    <svg class="btn-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                    <span class="btn-label">Lock</span>
-                </button>
-            </form>
-        @endif
-    </header>
-
     <main data-view="{{ request()->filled('m') ? 'message' : 'list' }}">
         <div class="list">
-            <form class="search" method="GET" action="{{ route('maillens.index') }}">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-                <input type="search" name="q" value="{{ $search }}" placeholder="Search subject, to, from…" autocomplete="off" @if($search !== '') autofocus @endif>
-            </form>
+            <div class="sidebar-head">
+                <div class="logo">
+                    <img src="{{ route('maillens.logo') }}" alt="MailLens">
+                    <span class="wordmark">Mail<span>Lens</span></span>
+                </div>
+                @if(filled(config('maillens.password')))
+                    <form class="inline" method="POST" action="{{ route('maillens.logout') }}">
+                        @csrf
+                        <button class="btn btn-lock" type="submit" title="Lock">
+                            <svg class="btn-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                            <span class="btn-label">Lock</span>
+                        </button>
+                    </form>
+                @endif
+            </div>
 
+            <div class="list-toolbar">
+                <form class="search" method="GET" action="{{ route('maillens.index') }}">
+                    <input type="search" name="q" value="{{ $search }}" placeholder="Search…" autocomplete="off" @if($search !== '') autofocus @endif>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+                </form>
+                <form class="inline" method="POST" action="{{ route('maillens.read') }}">
+                    @csrf
+                    <button class="icon-btn" type="submit" title="Mark all as read">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 13V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h9"/><path d="m2 7 10 6 10-6"/><path d="m16 19 2 2 4-4"/></svg>
+                    </button>
+                </form>
+                <a class="icon-btn" href="{{ route('maillens.index', array_filter(['q' => $search])) }}" title="Refresh">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                </a>
+                <form class="inline" method="POST" action="{{ route('maillens.clear') }}"
+                      onsubmit="return confirm('Delete all captured mail?')">
+                    @csrf @method('DELETE')
+                    <button class="icon-btn danger" type="submit" title="Clear all messages">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M10 11v6M14 11v6"/></svg>
+                    </button>
+                </form>
+            </div>
+
+            <div class="list-items">
             @forelse($messages as $message)
                 <a class="item {{ $selected && $selected->uuid === $message->uuid ? 'active' : '' }} {{ $message->read ? '' : 'unread' }}"
                    href="{{ route('maillens.index', array_filter(['m' => $message->uuid, 'q' => $search])) }}">
@@ -234,6 +242,7 @@
                     @endif
                 </div>
             @endforelse
+            </div>
         </div>
 
         <div class="detail">

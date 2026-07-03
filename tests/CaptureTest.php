@@ -68,6 +68,18 @@ class CaptureTest extends TestCase
         $this->get('/mail')->assertOk();
     }
 
+    public function test_mark_all_as_read(): void
+    {
+        Mail::html('<p>a</p>', fn ($m) => $m->to('a@example.com')->subject('One'));
+        Mail::html('<p>b</p>', fn ($m) => $m->to('b@example.com')->subject('Two'));
+
+        $this->assertSame(2, MailLensMessage::where('read', false)->count());
+
+        $this->from('/mail')->post('/mail/read')->assertRedirect('/mail');
+
+        $this->assertSame(0, MailLensMessage::where('read', false)->count());
+    }
+
     public function test_search_filters_by_subject_and_recipient(): void
     {
         Mail::html('<p>a</p>', function ($message) {
