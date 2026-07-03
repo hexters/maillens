@@ -35,7 +35,7 @@
         .btn.btn-lock:hover { border-color: var(--danger); color: #fff; filter: brightness(.95); }
         .btn-ico { width: 16px; height: 16px; display: none; }
         main { display: grid; grid-template-columns: 350px 1fr; height: 100vh; min-height: 0; }
-        .list { display: flex; flex-direction: column; min-height: 0; border-right: 1px solid var(--border); background: var(--panel); }
+        .list { display: flex; flex-direction: column; min-width: 0; min-height: 0; border-right: 1px solid var(--border); background: var(--panel); }
         .sidebar-head {
             flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; gap: 10px;
             padding: 12px 14px; border-bottom: 1px solid var(--border);
@@ -77,9 +77,9 @@
         }
         .detail { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
         .meta { padding: 16px 22px; border-bottom: 1px solid var(--border); background: var(--panel); }
-        .meta-top { display: flex; align-items: baseline; justify-content: space-between; gap: 14px; }
-        .meta h1 { flex: 1; margin: 0 0 10px; font-size: 18px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .meta-date { color: var(--muted); font-size: 12px; white-space: nowrap; flex-shrink: 0; }
+        .meta-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; }
+        .meta h1 { flex: 1; margin: 0 0 10px; font-size: 18px; min-width: 0; overflow-wrap: anywhere; word-break: break-word; }
+        .meta-date { color: var(--muted); font-size: 12px; white-space: nowrap; flex-shrink: 0; padding-top: 3px; }
         .meta .row { display: flex; gap: 8px; margin: 3px 0; font-size: 13px; }
         .meta .row .k { color: var(--muted); width: 60px; flex-shrink: 0; }
         .meta .row .v { word-break: break-word; }
@@ -149,7 +149,9 @@
         .modal-actions .btn { width: 100%; justify-content: center; padding: 9px 14px; }
 
         /* One pane at a time on phones: the list, or the open message. */
-        .mobile-back { display: none; }
+        .appbar { display: none; }
+        .mobile-back { display: inline-flex; align-items: center; gap: 6px; color: var(--accent); text-decoration: none; font-weight: 600; font-size: 13px; }
+        .appbar-date { color: var(--muted); font-size: 12px; white-space: nowrap; }
         @media (max-width: 820px) {
             main { grid-template-columns: 1fr; }
             main[data-view="message"] .list { display: none; }
@@ -188,12 +190,13 @@
             .viewport-switch { display: none; }
             .frame-wrap.tablet, .frame-wrap.mobile { max-width: 100%; }
 
-            .mobile-back {
-                display: flex; align-items: center; gap: 6px;
-                padding: 11px 16px; background: var(--panel);
-                border-bottom: 1px solid var(--border);
-                color: var(--accent); text-decoration: none; font-weight: 600; font-size: 13px;
+            /* Mobile app bar: back link on the left, the message date on the right
+               (moved out of the subject row so the subject can wrap in full). */
+            .appbar {
+                display: flex; align-items: center; justify-content: space-between; gap: 10px;
+                padding: 11px 16px; background: var(--panel); border-bottom: 1px solid var(--border);
             }
+            .meta-date { display: none; }
         }
 
         [x-cloak] { display: none !important; }
@@ -266,7 +269,12 @@
         </div>
 
         <div class="detail">
-            <a class="mobile-back" href="{{ route('maillens.index', array_filter(['q' => $search])) }}">&larr; Inbox</a>
+            <div class="appbar">
+                <a class="mobile-back" href="{{ route('maillens.index', array_filter(['q' => $search])) }}">&larr; Inbox</a>
+                @if($selected)
+                    <span class="appbar-date">{{ $selected->created_at?->toDayDateTimeString() }}</span>
+                @endif
+            </div>
             @if($selected)
                 <div class="meta" :class="{ 'meta-open': metaOpen }">
                     <div class="meta-top">
