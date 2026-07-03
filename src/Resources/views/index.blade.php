@@ -49,13 +49,12 @@
         }
         .item:hover { background: var(--panel-2); }
         .item.active { background: var(--accent-soft); box-shadow: inset 3px 0 0 var(--accent); }
-        .item .top { display: flex; justify-content: space-between; gap: 8px; }
-        .item .from { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .item .time { color: var(--muted); font-size: 11px; white-space: nowrap; }
-        .item .subject { margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .item .preview { color: var(--muted); font-size: 12px; margin-top: 3px;
+        .item .top { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+        .item .subject { font-weight: 600; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .item .time { color: var(--muted); font-size: 11px; white-space: nowrap; flex-shrink: 0; }
+        .item .to { color: var(--muted); font-size: 12px; margin-top: 3px;
             overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .item.unread .from::before {
+        .item.unread .subject::before {
             content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 50%;
             background: var(--unread); margin-right: 6px; vertical-align: middle;
         }
@@ -198,17 +197,16 @@
                 <a class="item {{ $selected && $selected->uuid === $message->uuid ? 'active' : '' }} {{ $message->read ? '' : 'unread' }}"
                    href="{{ route('maillens.index', ['m' => $message->uuid]) }}">
                     <div class="top">
-                        <span class="from">{{ $message->from_line ?: '(no sender)' }}</span>
-                        <span class="time">{{ $message->created_at?->diffForHumans(null, true) }}</span>
+                        <span class="subject">{{ $message->subject ?: '(no subject)' }}</span>
+                        <span class="time">{{ $message->created_at?->diffForHumans() }}</span>
                     </div>
-                    <div class="subject">{{ $message->subject ?: '(no subject)' }}</div>
-                    <div class="preview">{{ \Illuminate\Support\Str::limit($message->preview, 70) }}</div>
+                    <div class="to">{{ $message->to_line ?: '—' }}</div>
                 </a>
             @empty
                 <div class="empty">
                     <div>
                         <div class="big">Inbox is empty</div>
-                        Send an email with <code>MAIL_MAILER={{ config('maillens.mailer', 'fake') }}</code><br>and it shows up here.
+                        Send an email with <code>MAIL_MAILER={{ config('maillens.mailer', 'lens') }}</code><br>and it shows up here.
                     </div>
                 </div>
             @endforelse
