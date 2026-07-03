@@ -78,7 +78,7 @@
         .detail { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
         .meta { padding: 16px 22px; border-bottom: 1px solid var(--border); background: var(--panel); }
         .meta-top { display: flex; align-items: baseline; justify-content: space-between; gap: 14px; }
-        .meta h1 { margin: 0 0 10px; font-size: 18px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .meta h1 { flex: 1; margin: 0 0 10px; font-size: 18px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .meta-date { color: var(--muted); font-size: 12px; white-space: nowrap; flex-shrink: 0; }
         .meta .row { display: flex; gap: 8px; margin: 3px 0; font-size: 13px; }
         .meta .row .k { color: var(--muted); width: 60px; flex-shrink: 0; }
@@ -163,15 +163,9 @@
 
             .list { border-right: 0; }
             .meta { padding: 14px 16px; }
-            /* Let a long subject wrap in the reading pane instead of truncating.
-               flex:1 (basis 0) constrains the width so it wraps instead of
-               widening the row and forcing a horizontal scroll. */
-            .meta-top { align-items: flex-start; }
-            .meta h1 {
-                flex: 1; font-size: 16px; margin-bottom: 8px;
-                white-space: normal; overflow: visible; text-overflow: clip;
-                overflow-wrap: anywhere; word-break: break-word;
-            }
+            /* Truncate a long subject to the width (flex:1 + ellipsis) so it
+               never widens the row into a horizontal scroll. */
+            .meta h1 { font-size: 16px; margin-bottom: 8px; }
             .toolbar { padding: 8px 14px 0; gap: 8px; overflow-x: auto; }
             .stage { padding: 12px; }
 

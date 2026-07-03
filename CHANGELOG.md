@@ -13,7 +13,8 @@ All notable changes to `hexters/maillens` will be documented in this file.
 - Clear all now asks for confirmation in a modal instead of the browser popup.
 - Simpler list rows (subject over `to: <addr>`, relative time) and the message
   date moved to the top-right of the reading pane.
-- On mobile, a long subject wraps in the reading pane instead of being cut off.
+- Long subjects truncate to the pane width so mobile no longer scrolls
+  sideways.
 
 ## v1.2.0
 
