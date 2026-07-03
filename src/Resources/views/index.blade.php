@@ -163,7 +163,9 @@
 
             .list { border-right: 0; }
             .meta { padding: 14px 16px; }
-            .meta h1 { font-size: 16px; margin-bottom: 8px; }
+            /* Let a long subject wrap in the reading pane instead of truncating. */
+            .meta-top { align-items: flex-start; }
+            .meta h1 { font-size: 16px; margin-bottom: 8px; white-space: normal; overflow: visible; text-overflow: clip; }
             .toolbar { padding: 8px 14px 0; gap: 8px; overflow-x: auto; }
             .stage { padding: 12px; }
 
