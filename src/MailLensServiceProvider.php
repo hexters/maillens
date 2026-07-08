@@ -26,6 +26,10 @@ class MailLensServiceProvider extends ServiceProvider
         // Register the capturing transport so the "lens" mailer can be built.
         Mail::extend('maillens', fn () => new MailLensTransport);
 
+        // Always register the migration so you can install then `php artisan migrate`
+        // right away, before flipping MAIL_MAILER=lens.
+        $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
+
         if ($this->app->runningInConsole()) {
             $this->publishes([
                 __DIR__ . '/Config/config.php' => config_path('maillens.php'),
@@ -36,10 +40,9 @@ class MailLensServiceProvider extends ServiceProvider
             ], 'maillens-migrations');
         }
 
-        // MailLens is "on" only when the app is actually using its mailer.
-        // MAIL_MAILER=lens ⇒ inbox routes + table load; anything else ⇒ nothing.
+        // The inbox itself is "on" only when the app is actually using the mailer.
+        // MAIL_MAILER=lens ⇒ /mail routes load; anything else ⇒ they don't.
         if ($this->active()) {
-            $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
             $this->loadRoutesFrom(__DIR__ . '/routes/web.php');
         }
     }

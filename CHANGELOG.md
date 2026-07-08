@@ -2,6 +2,11 @@
 
 All notable changes to `hexters/maillens` will be documented in this file.
 
+## v1.3.2
+
+- The migration is always registered, so you can run `php artisan migrate` right
+  after install, before setting `MAIL_MAILER=lens`.
+
 ## v1.3.1
 
 - Fix horizontal scroll from long subjects: the list truncates them to one

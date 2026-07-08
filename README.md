@@ -31,21 +31,17 @@ lives inside your own app.
 composer require hexters/maillens --dev
 ```
 
-The service provider registers itself. Set the mailer in your `.env`:
-
-```dotenv
-MAIL_MAILER=lens
-```
-
-Then run the migration to create the table MailLens stores mail in:
+Run the migration to create the table MailLens stores mail in:
 
 ```bash
 php artisan migrate
 ```
 
-Set `MAIL_MAILER=lens` before you migrate. The migration only loads while that
-mailer is active, so running `migrate` first would skip it and the table would
-not be created.
+Then point the mailer at MailLens in your `.env`:
+
+```dotenv
+MAIL_MAILER=lens
+```
 
 Now send mail the way you normally would and open `/mail` to read it. You do not
 need to touch `config/mail.php`; MailLens adds the `lens` mailer for you.
@@ -77,9 +73,8 @@ blame MailLens.
 
 There is no separate switch. `MAIL_MAILER` is the switch. When it is set to
 anything other than `lens`, MailLens stays quiet: it does not register the
-`/mail` route, it does not load its migration, and nothing routes through it.
-Keep `MAIL_MAILER=lens` out of your production `.env` and your mail will send
-for real there.
+`/mail` route and nothing routes through it. Keep `MAIL_MAILER=lens` out of your
+production `.env` and your mail will send for real there.
 
 ## Password protection
 
